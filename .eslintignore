@@ -1,0 +1,9 @@
+node_modules/
+build/
+dist/
+.react-router/
+*.config.js
+*.config.ts
+coverage/
+.env.local
+.env.*.local
