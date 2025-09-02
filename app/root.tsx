@@ -11,6 +11,7 @@ import type { Route } from './+types/root';
 import './app.css';
 import { ChakraProvider, Box, Heading, Text, Code } from '@chakra-ui/react';
 import { ColorModeProvider } from './components/ui/color-mode';
+import { PageLayout } from './components/page-layout';
 import { system } from './lib/theme';
 
 export const links: Route.LinksFunction = () => [
@@ -35,7 +36,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
         <Meta />
         <Links />
       </head>
-      <body>
+      <body style={{ margin: 0, padding: 0 }}>
         {children}
         <ScrollRestoration />
         <Scripts />
@@ -48,7 +49,9 @@ export default function App() {
   return (
     <ColorModeProvider>
       <ChakraProvider value={system}>
-        <Outlet />
+        <PageLayout>
+          <Outlet />
+        </PageLayout>
       </ChakraProvider>
     </ColorModeProvider>
   );

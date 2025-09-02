@@ -1,9 +1,10 @@
 import { Button, Box } from '@chakra-ui/react';
+import type { ButtonProps, BoxProps } from '@chakra-ui/react';
 import { ThemeProvider, useTheme } from 'next-themes';
 import type { ThemeProviderProps } from 'next-themes';
 import * as React from 'react';
 
-export interface ColorModeProviderProps extends ThemeProviderProps {}
+export type ColorModeProviderProps = ThemeProviderProps;
 
 export function ColorModeProvider(props: ColorModeProviderProps) {
   return (
@@ -42,7 +43,7 @@ export function ColorModeIcon() {
   return colorMode === 'dark' ? '🌙' : '☀️';
 }
 
-export const ColorModeButton = React.forwardRef<HTMLButtonElement, any>(
+export const ColorModeButton = React.forwardRef<HTMLButtonElement, ButtonProps>(
   function ColorModeButton(props, ref) {
     const { toggleColorMode } = useColorMode();
     return (
@@ -59,7 +60,7 @@ export const ColorModeButton = React.forwardRef<HTMLButtonElement, any>(
   }
 );
 
-export const LightMode = React.forwardRef<HTMLDivElement, any>(
+export const LightMode = React.forwardRef<HTMLDivElement, BoxProps>(
   function LightMode(props, ref) {
     return (
       <Box color='fg' className='chakra-theme light' ref={ref} {...props} />
@@ -67,7 +68,7 @@ export const LightMode = React.forwardRef<HTMLDivElement, any>(
   }
 );
 
-export const DarkMode = React.forwardRef<HTMLDivElement, any>(
+export const DarkMode = React.forwardRef<HTMLDivElement, BoxProps>(
   function DarkMode(props, ref) {
     return (
       <Box color='fg' className='chakra-theme dark' ref={ref} {...props} />
