@@ -9,6 +9,9 @@ import {
 
 import type { Route } from './+types/root';
 import './app.css';
+import { ChakraProvider, Box, Heading, Text, Code } from '@chakra-ui/react';
+import { ColorModeProvider } from './components/ui/color-mode';
+import { system } from './lib/theme';
 
 export const links: Route.LinksFunction = () => [
   { rel: 'preconnect', href: 'https://fonts.googleapis.com' },
@@ -42,7 +45,13 @@ export function Layout({ children }: { children: React.ReactNode }) {
 }
 
 export default function App() {
-  return <Outlet />;
+  return (
+    <ColorModeProvider>
+      <ChakraProvider value={system}>
+        <Outlet />
+      </ChakraProvider>
+    </ColorModeProvider>
+  );
 }
 
 export function ErrorBoundary({ error }: Route.ErrorBoundaryProps) {
@@ -62,14 +71,24 @@ export function ErrorBoundary({ error }: Route.ErrorBoundaryProps) {
   }
 
   return (
-    <main className='pt-16 p-4 container mx-auto'>
-      <h1>{message}</h1>
-      <p>{details}</p>
-      {stack && (
-        <pre className='w-full p-4 overflow-x-auto'>
-          <code>{stack}</code>
-        </pre>
-      )}
-    </main>
+    <ColorModeProvider>
+      <ChakraProvider value={system}>
+        <Box p={8} maxW='container.xl' mx='auto' mt={16}>
+          <Heading size='xl' mb={4}>
+            {message}
+          </Heading>
+          <Text mb={4} color='fg.muted'>
+            {details}
+          </Text>
+          {stack && (
+            <Box p={4} bg='bg.muted' borderRadius='md' overflow='auto'>
+              <Code display='block' whiteSpace='pre'>
+                {stack}
+              </Code>
+            </Box>
+          )}
+        </Box>
+      </ChakraProvider>
+    </ColorModeProvider>
   );
 }
