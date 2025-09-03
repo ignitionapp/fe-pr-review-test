@@ -7,4 +7,3 @@ export default [
   route('clients', 'routes/clients.tsx'),
   route('clients/:clientId', 'routes/clients.$clientId.tsx'),
 ] satisfies RouteConfig;
-

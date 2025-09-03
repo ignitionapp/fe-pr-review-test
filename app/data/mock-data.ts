@@ -186,6 +186,17 @@ export const mockClientStats: ClientStats = {
   pendingProposals: 2,
 };
 
+export const mockProposalStats = {
+  totalProposals: mockProposals.length,
+  acceptedProposals: mockProposals.filter(p => p.status === 'accepted').length,
+  draftProposals: mockProposals.filter(p => p.status === 'draft').length,
+  sentProposals: mockProposals.filter(p => p.status === 'sent').length,
+  totalValue: mockProposals.reduce((sum, p) => sum + p.totalAmount, 0),
+  acceptedValue: mockProposals
+    .filter(p => p.status === 'accepted')
+    .reduce((sum, p) => sum + p.totalAmount, 0),
+};
+
 // Helper function to get client by ID
 export const getClientById = (id: string): Client | undefined => {
   return mockClients.find(client => client.id === id);
@@ -194,4 +205,15 @@ export const getClientById = (id: string): Client | undefined => {
 // Helper function to get proposals for a client
 export const getProposalsByClientId = (clientId: string): Proposal[] => {
   return mockProposals.filter(proposal => proposal.clientId === clientId);
+};
+
+// Helper function to get proposal by ID
+export const getProposalById = (id: string): Proposal | undefined => {
+  return mockProposals.find(proposal => proposal.id === id);
+};
+
+// Helper function to get client name for a proposal
+export const getClientNameById = (clientId: string): string => {
+  const client = getClientById(clientId);
+  return client ? client.name : 'Unknown Client';
 };
