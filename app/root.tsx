@@ -13,6 +13,18 @@ import { ChakraProvider, Box, Heading, Text, Code } from '@chakra-ui/react';
 import { ColorModeProvider } from './components/ui/color-mode';
 import { PageLayout } from './components/page-layout';
 import { system } from './lib/theme';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+
+// Create a client
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      staleTime: 1000 * 60 * 5, // 5 minutes
+      gcTime: 1000 * 60 * 10, // 10 minutes (formerly cacheTime)
+      retry: 1,
+    },
+  },
+});
 
 export const links: Route.LinksFunction = () => [
   { rel: 'preconnect', href: 'https://fonts.googleapis.com' },
@@ -47,13 +59,15 @@ export function Layout({ children }: { children: React.ReactNode }) {
 
 export default function App() {
   return (
-    <ColorModeProvider>
-      <ChakraProvider value={system}>
-        <PageLayout>
-          <Outlet />
-        </PageLayout>
-      </ChakraProvider>
-    </ColorModeProvider>
+    <QueryClientProvider client={queryClient}>
+      <ColorModeProvider>
+        <ChakraProvider value={system}>
+          <PageLayout>
+            <Outlet />
+          </PageLayout>
+        </ChakraProvider>
+      </ColorModeProvider>
+    </QueryClientProvider>
   );
 }
 

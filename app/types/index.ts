@@ -50,3 +50,13 @@ export interface ClientStats {
   totalRevenue: number;
   pendingProposals: number;
 }
+
+export interface ProposalStats {
+  totalProposals: number;
+  acceptedProposals: number;
+  sentProposals: number;
+  draftProposals: number;
+  rejectedProposals: number;
+  totalValue: number;
+  acceptedValue: number;
+}

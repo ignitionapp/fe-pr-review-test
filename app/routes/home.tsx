@@ -26,11 +26,10 @@ import {
   Send,
   UserPlus,
 } from 'lucide-react';
-import {
-  mockClientStats,
-  mockProposalStats,
-  getDashboardData,
-} from '../data/mock-data';
+import { getDashboardData } from '../data/mock-data';
+import { useStats } from '../lib/hooks/useApi';
+import { LoadingSpinner } from '../components/ui/loading';
+import { ErrorDisplay } from '../components/ui/error';
 
 export function meta(_args: Route.MetaArgs) {
   return [
@@ -91,10 +90,35 @@ const getActivityColor = (type: string) => {
 };
 
 export default function Dashboard() {
-  // Load data on client side for SPA mode
-  const clientStats = mockClientStats;
-  const proposalStats = mockProposalStats;
+  // Use TanStack Query to fetch stats
+  const { data: stats, isLoading, error, refetch } = useStats();
   const dashboardData = getDashboardData();
+
+  if (isLoading) {
+    return (
+      <Container maxW='container.xl' py={8}>
+        <LoadingSpinner message='Loading dashboard...' />
+      </Container>
+    );
+  }
+
+  if (error) {
+    return (
+      <Container maxW='container.xl' py={8}>
+        <ErrorDisplay
+          title='Failed to load dashboard'
+          message='Unable to fetch dashboard data. Please check your connection and try again.'
+          onRetry={() => refetch()}
+        />
+      </Container>
+    );
+  }
+
+  if (!stats) {
+    return null;
+  }
+
+  const { clients: clientStats, proposals: proposalStats } = stats;
 
   return (
     <Container maxW='container.xl' py={8}>
