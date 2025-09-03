@@ -174,9 +174,17 @@ export default function ProposalsPage({ loaderData }: Route.ComponentProps) {
               <Table.Row key={proposal.id}>
                 <Table.Cell>
                   <VStack gap={1} align='start'>
-                    <Text fontWeight='medium' fontSize='sm'>
-                      {proposal.title}
-                    </Text>
+                    <Link
+                      asChild
+                      fontWeight='medium'
+                      fontSize='sm'
+                      color='blue.500'
+                      _hover={{ color: 'blue.600' }}
+                    >
+                      <RouterLink to={`/proposals/${proposal.id}`}>
+                        {proposal.title}
+                      </RouterLink>
+                    </Link>
                     <Text fontSize='xs' color='fg.muted'>
                       {proposal.description}
                     </Text>
