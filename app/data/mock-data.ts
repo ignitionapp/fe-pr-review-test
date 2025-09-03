@@ -217,3 +217,158 @@ export const getClientNameById = (clientId: string): string => {
   const client = getClientById(clientId);
   return client ? client.name : 'Unknown Client';
 };
+
+// Dashboard analytics derived from actual data
+export const getDashboardData = () => {
+  // Calculate client status distribution
+  const clientStatusCounts = mockClients.reduce(
+    (acc, client) => {
+      acc[client.status] = (acc[client.status] || 0) + 1;
+      return acc;
+    },
+    {} as Record<string, number>
+  );
+
+  const totalClients = mockClients.length;
+  const clientStatusDistribution = Object.entries(clientStatusCounts).map(
+    ([status, count]) => ({
+      status: status.charAt(0).toUpperCase() + status.slice(1),
+      count,
+      percentage: Math.round((count / totalClients) * 100),
+    })
+  );
+
+  // Calculate proposal status distribution
+  const proposalStatusCounts = mockProposals.reduce(
+    (acc, proposal) => {
+      if (!acc[proposal.status]) {
+        acc[proposal.status] = { count: 0, value: 0 };
+      }
+      acc[proposal.status].count += 1;
+      acc[proposal.status].value += proposal.totalAmount;
+      return acc;
+    },
+    {} as Record<string, { count: number; value: number }>
+  );
+
+  const proposalStatusDistribution = Object.entries(proposalStatusCounts).map(
+    ([status, data]) => ({
+      status: status.charAt(0).toUpperCase() + status.slice(1),
+      count: data.count,
+      value: data.value,
+    })
+  );
+
+  // Calculate service performance from proposals
+  const servicePerformance = mockProposals.reduce(
+    (acc, proposal) => {
+      proposal.services.forEach(serviceId => {
+        const service = mockServices.find(s => s.id === serviceId);
+        if (service) {
+          const category = service.category;
+          if (!acc[category]) {
+            acc[category] = { count: 0, revenue: 0 };
+          }
+          acc[category].count += 1;
+          // Distribute proposal amount across services
+          acc[category].revenue +=
+            proposal.totalAmount / proposal.services.length;
+        }
+      });
+      return acc;
+    },
+    {} as Record<string, { count: number; revenue: number }>
+  );
+
+  const serviceCategories = Object.entries(servicePerformance).map(
+    ([category, data]) => ({
+      category: category.charAt(0).toUpperCase() + category.slice(1),
+      count: data.count,
+      revenue: Math.round(data.revenue),
+    })
+  );
+
+  // Generate recent activity from proposals and clients (sorted by date)
+  const recentActivity = [
+    // Proposal activities
+    ...mockProposals.map(proposal => {
+      const client = getClientById(proposal.clientId);
+      const activityType =
+        proposal.status === 'accepted'
+          ? 'proposal_accepted'
+          : proposal.status === 'sent'
+            ? 'proposal_sent'
+            : 'proposal_draft';
+      const actionText =
+        proposal.status === 'accepted'
+          ? 'accepted'
+          : proposal.status === 'sent'
+            ? 'sent'
+            : 'created';
+
+      return {
+        id: `proposal-${proposal.id}`,
+        type: activityType,
+        title: `${proposal.title} ${actionText}`,
+        client: client?.name || 'Unknown Client',
+        value: proposal.totalAmount,
+        timestamp: proposal.updatedAt,
+      };
+    }),
+    // Client activities (using recent clients)
+    ...mockClients.slice(-2).map(client => ({
+      id: `client-${client.id}`,
+      type: 'client_added',
+      title: 'New client onboarded',
+      client: client.name,
+      value: null,
+      timestamp: client.createdAt,
+    })),
+  ]
+    .sort(
+      (a, b) =>
+        new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime()
+    )
+    .slice(0, 6); // Show latest 6 activities
+
+  // Generate monthly revenue trend (simulated based on proposal data)
+  const currentDate = new Date();
+  const monthlyRevenue = Array.from({ length: 8 }, (_, i) => {
+    const month = new Date(
+      currentDate.getFullYear(),
+      currentDate.getMonth() - (7 - i),
+      1
+    );
+    const monthName = month.toLocaleDateString('en-US', { month: 'short' });
+
+    // Simulate revenue growth with some variation
+    const baseRevenue = 45000;
+    const growthFactor = 1 + i * 0.05 + (Math.random() * 0.3 - 0.15); // Growth with variation
+    const revenue = Math.round(baseRevenue * growthFactor);
+
+    return {
+      month: monthName,
+      revenue,
+      proposals: Math.floor(revenue / 5000), // Rough estimate of proposals per month
+    };
+  });
+
+  // Calculate conversion rate (accepted proposals / total proposals)
+  const conversionRate =
+    mockProposals.length > 0
+      ? Math.round(
+          (mockProposals.filter(p => p.status === 'accepted').length /
+            mockProposals.length) *
+            100
+        )
+      : 0;
+
+  return {
+    monthlyRevenue,
+    clientStatusDistribution,
+    proposalStatusDistribution,
+    serviceCategories,
+    recentActivity,
+    conversionRate,
+  };
+};
