@@ -5,4 +5,6 @@ export default [
   route('demo', 'routes/demo.tsx'),
   route('proposals', 'routes/proposals.tsx'),
   route('clients', 'routes/clients.tsx'),
+  route('clients/:clientId', 'routes/clients.$clientId.tsx'),
 ] satisfies RouteConfig;
+

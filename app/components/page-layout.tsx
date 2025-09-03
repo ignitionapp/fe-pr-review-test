@@ -18,8 +18,8 @@ interface PageLayoutProps {
 
 const navigationItems = [
   { label: 'Home', path: '/' },
-  { label: 'Proposals', path: '/proposals' },
   { label: 'Clients', path: '/clients' },
+  { label: 'Proposals', path: '/proposals' },
 ];
 
 export function PageLayout({ children }: PageLayoutProps) {
