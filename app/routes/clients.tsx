@@ -24,14 +24,6 @@ export function meta(_args: Route.MetaArgs) {
   ];
 }
 
-export function loader(_args: Route.LoaderArgs) {
-  // In a real app, this would fetch from an API
-  return {
-    clients: mockClients,
-    stats: mockClientStats,
-  };
-}
-
 const getStatusColor = (status: Client['status']) => {
   switch (status) {
     case 'active':
@@ -60,8 +52,10 @@ const formatDate = (dateString: string) => {
   });
 };
 
-export default function ClientsPage({ loaderData }: Route.ComponentProps) {
-  const { clients, stats } = loaderData;
+export default function ClientsPage() {
+  // Load data on client side for SPA mode
+  const clients = mockClients;
+  const stats = mockClientStats;
 
   return (
     <Container maxW='container.xl' py={8}>
@@ -72,8 +66,6 @@ export default function ClientsPage({ loaderData }: Route.ComponentProps) {
             Add New Client
           </Button>
         </HStack>
-
-        {/* Stats Overview */}
         <HStack gap={8} mb={8}>
           <Box>
             <Text fontSize='2xl' fontWeight='bold' color='fg'>
@@ -109,8 +101,6 @@ export default function ClientsPage({ loaderData }: Route.ComponentProps) {
           </Box>
         </HStack>
       </Box>
-
-      {/* Clients Table */}
       <Box
         bg='bg.surface'
         borderRadius='lg'

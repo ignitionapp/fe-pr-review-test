@@ -29,14 +29,6 @@ export function meta(_args: Route.MetaArgs) {
   ];
 }
 
-export function loader(_args: Route.LoaderArgs) {
-  // In a real app, this would fetch from an API
-  return {
-    proposals: mockProposals,
-    stats: mockProposalStats,
-  };
-}
-
 const getStatusColor = (status: Proposal['status']) => {
   switch (status) {
     case 'accepted':
@@ -84,8 +76,10 @@ const getValidityStatus = (validUntil: string) => {
   return { text: formatDate(validUntil), color: 'gray' };
 };
 
-export default function ProposalsPage({ loaderData }: Route.ComponentProps) {
-  const { proposals, stats } = loaderData;
+export default function ProposalsPage() {
+  // Load data on client side for SPA mode
+  const proposals = mockProposals;
+  const stats = mockProposalStats;
 
   return (
     <Container maxW='container.xl' py={8}>
@@ -96,8 +90,6 @@ export default function ProposalsPage({ loaderData }: Route.ComponentProps) {
             Create New Proposal
           </Button>
         </HStack>
-
-        {/* Stats Overview */}
         <HStack gap={8} mb={8}>
           <Box>
             <Text fontSize='2xl' fontWeight='bold' color='fg'>
@@ -149,8 +141,6 @@ export default function ProposalsPage({ loaderData }: Route.ComponentProps) {
           </Box>
         </HStack>
       </Box>
-
-      {/* Proposals Table */}
       <Box
         bg='bg.surface'
         borderRadius='lg'

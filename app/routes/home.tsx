@@ -42,14 +42,6 @@ export function meta(_args: Route.MetaArgs) {
   ];
 }
 
-export function loader(_args: Route.LoaderArgs) {
-  return {
-    clientStats: mockClientStats,
-    proposalStats: mockProposalStats,
-    dashboardData: getDashboardData(),
-  };
-}
-
 const formatCurrency = (amount: number) => {
   return new Intl.NumberFormat('en-US', {
     style: 'currency',
@@ -98,13 +90,15 @@ const getActivityColor = (type: string) => {
   }
 };
 
-export default function Dashboard({ loaderData }: Route.ComponentProps) {
-  const { clientStats, proposalStats, dashboardData } = loaderData;
+export default function Dashboard() {
+  // Load data on client side for SPA mode
+  const clientStats = mockClientStats;
+  const proposalStats = mockProposalStats;
+  const dashboardData = getDashboardData();
 
   return (
     <Container maxW='container.xl' py={8}>
       <VStack align='start' gap={8}>
-        {/* Header */}
         <Box w='full'>
           <Heading size='lg' mb={2}>
             Dashboard
@@ -113,8 +107,6 @@ export default function Dashboard({ loaderData }: Route.ComponentProps) {
             Welcome back! Here&apos;s what&apos;s happening with your business.
           </Text>
         </Box>
-
-        {/* Key Metrics */}
         <Grid
           templateColumns='repeat(auto-fit, minmax(250px, 1fr))'
           gap={6}
@@ -218,8 +210,6 @@ export default function Dashboard({ loaderData }: Route.ComponentProps) {
             </HStack>
           </Box>
         </Grid>
-
-        {/* Charts Section */}
         <Grid templateColumns='2fr 1fr' gap={8} w='full'>
           <GridItem>
             <Box p={6} borderWidth={1} borderRadius='lg' bg='bg.surface'>
@@ -279,8 +269,6 @@ export default function Dashboard({ loaderData }: Route.ComponentProps) {
             </Box>
           </GridItem>
         </Grid>
-
-        {/* Bottom Section */}
         <Grid templateColumns='1fr 1fr' gap={8} w='full'>
           <GridItem>
             <Box p={6} borderWidth={1} borderRadius='lg' bg='bg.surface'>
@@ -361,8 +349,6 @@ export default function Dashboard({ loaderData }: Route.ComponentProps) {
             </Box>
           </GridItem>
         </Grid>
-
-        {/* Quick Actions */}
         <Box w='full' p={6} borderWidth={1} borderRadius='lg' bg='bg.surface'>
           <Heading size='md' mb={4}>
             Quick Actions

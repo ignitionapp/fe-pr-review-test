@@ -27,19 +27,26 @@ export function PageLayout({ children }: PageLayoutProps) {
 
   return (
     <Box minH='100vh' bg='bg'>
-      {/* Header */}
       <Box
         as='header'
-        bg='bg.surface'
+        bg='bg.panel'
         borderBottomWidth='1px'
-        borderBottomColor='border'
+        borderBottomColor='border.emphasized'
         position='sticky'
         top={0}
         zIndex={10}
+        backdropFilter='blur(8px)'
+        _light={{
+          bg: 'white',
+          boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1)',
+        }}
+        _dark={{
+          bg: 'gray.900',
+          boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.3)',
+        }}
       >
         <Container maxW='container.xl' py={4}>
           <Flex align='center' gap={8}>
-            {/* Navigation Links */}
             <HStack gap={6}>
               {navigationItems.map(item => (
                 <Link
@@ -59,10 +66,7 @@ export function PageLayout({ children }: PageLayoutProps) {
                 </Link>
               ))}
             </HStack>
-
             <Spacer />
-
-            {/* Search Input */}
             <InputGroup maxW='300px' startElement={<LuSearch />}>
               <Input
                 placeholder='Search...'
@@ -72,14 +76,11 @@ export function PageLayout({ children }: PageLayoutProps) {
                 _focus={{ bg: 'bg.emphasized' }}
               />
             </InputGroup>
-
-            {/* Dark Mode Toggle */}
             <ColorModeButton />
           </Flex>
         </Container>
       </Box>
 
-      {/* Main Content */}
       <Box as='main'>{children}</Box>
     </Box>
   );

@@ -1,5 +1,4 @@
-import type { LoaderFunctionArgs, MetaFunction } from 'react-router';
-import { useLoaderData } from 'react-router';
+import type { Route } from './+types/proposals.$proposalId';
 import {
   Box,
   Container,
@@ -14,7 +13,7 @@ import {
   Table,
   Separator,
 } from '@chakra-ui/react';
-import { useNavigate } from 'react-router';
+import { useNavigate, useParams } from 'react-router';
 import {
   ArrowLeft,
   Calendar,
@@ -34,7 +33,7 @@ import {
 } from '../data/mock-data';
 import type { Proposal, Service } from '../types';
 
-export const meta: MetaFunction<typeof loader> = ({ params }) => {
+export function meta({ params }: Route.MetaArgs) {
   const proposal = getProposalById(params.proposalId!);
   return [
     {
@@ -44,25 +43,6 @@ export const meta: MetaFunction<typeof loader> = ({ params }) => {
     },
     { name: 'description', content: 'View proposal details and manage status' },
   ];
-};
-
-export function loader({ params }: LoaderFunctionArgs) {
-  const proposal = getProposalById(params.proposalId!);
-
-  if (!proposal) {
-    throw new Response('Proposal not found', { status: 404 });
-  }
-
-  const client = getClientById(proposal.clientId);
-  const services = proposal.services
-    .map(serviceId => mockServices.find(s => s.id === serviceId))
-    .filter(Boolean) as Service[];
-
-  return {
-    proposal,
-    client,
-    services,
-  };
 }
 
 const getStatusColor = (status: Proposal['status']) => {
@@ -167,8 +147,45 @@ const getCategoryColor = (category: Service['category']) => {
 };
 
 export default function ProposalDetailPage() {
-  const { proposal, client, services } = useLoaderData<typeof loader>();
   const navigate = useNavigate();
+  const params = useParams();
+
+  // Load data on client side for SPA mode
+  const proposal = getProposalById(params.proposalId!);
+
+  if (!proposal) {
+    return (
+      <Container maxW='container.xl' py={8}>
+        <HStack gap={4} mb={8}>
+          <Button
+            variant='ghost'
+            size='sm'
+            onClick={() => navigate('/proposals')}
+          >
+            <ArrowLeft size={16} />
+            Back to Proposals
+          </Button>
+        </HStack>
+        <Box textAlign='center' py={12}>
+          <Heading size='lg' mb={4}>
+            Proposal Not Found
+          </Heading>
+          <Text color='fg.muted' mb={4}>
+            The requested proposal could not be found.
+          </Text>
+          <Button colorScheme='blue' onClick={() => navigate('/proposals')}>
+            Back to Proposals
+          </Button>
+        </Box>
+      </Container>
+    );
+  }
+
+  const client = getClientById(proposal.clientId);
+  const services = proposal.services
+    .map(serviceId => mockServices.find(s => s.id === serviceId))
+    .filter(Boolean) as Service[];
+
   const validityStatus = getValidityStatus(
     proposal.validUntil,
     proposal.status

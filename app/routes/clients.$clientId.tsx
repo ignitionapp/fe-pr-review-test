@@ -1,5 +1,4 @@
-import type { LoaderFunctionArgs, MetaFunction } from 'react-router';
-import { useLoaderData } from 'react-router';
+import type { Route } from './+types/clients.$clientId';
 import {
   Box,
   Container,
@@ -13,16 +12,12 @@ import {
   GridItem,
   Table,
 } from '@chakra-ui/react';
-import { useNavigate } from 'react-router';
+import { useNavigate, useParams } from 'react-router';
 import { ArrowLeft, Mail, Phone } from 'lucide-react';
-import {
-  getClientById,
-  getProposalsByClientId,
-  mockServices,
-} from '../data/mock-data';
+import { getClientById, getProposalsByClientId } from '../data/mock-data';
 import type { Client, Proposal } from '../types';
 
-export const meta: MetaFunction<typeof loader> = ({ params }) => {
+export function meta({ params }: Route.MetaArgs) {
   const client = getClientById(params.clientId!);
   return [
     { title: client ? `${client.name} - Client Details` : 'Client Not Found' },
@@ -31,22 +26,6 @@ export const meta: MetaFunction<typeof loader> = ({ params }) => {
       content: 'View client details and manage proposals',
     },
   ];
-};
-
-export function loader({ params }: LoaderFunctionArgs) {
-  const client = getClientById(params.clientId!);
-
-  if (!client) {
-    throw new Response('Client not found', { status: 404 });
-  }
-
-  const proposals = getProposalsByClientId(params.clientId!);
-
-  return {
-    client,
-    proposals,
-    services: mockServices,
-  };
 }
 
 const getStatusColor = (status: Client['status']) => {
@@ -95,8 +74,40 @@ const formatDate = (dateString: string) => {
 };
 
 export default function ClientDetailPage() {
-  const { client, proposals } = useLoaderData<typeof loader>();
   const navigate = useNavigate();
+  const params = useParams();
+
+  // Load data on client side for SPA mode
+  const client = getClientById(params.clientId!);
+  const proposals = client ? getProposalsByClientId(params.clientId!) : [];
+
+  if (!client) {
+    return (
+      <Container maxW='container.xl' py={8}>
+        <HStack gap={4} mb={8}>
+          <Button
+            variant='ghost'
+            size='sm'
+            onClick={() => navigate('/clients')}
+          >
+            <ArrowLeft size={16} />
+            Back to Clients
+          </Button>
+        </HStack>
+        <Box textAlign='center' py={12}>
+          <Heading size='lg' mb={4}>
+            Client Not Found
+          </Heading>
+          <Text color='fg.muted' mb={4}>
+            The requested client could not be found.
+          </Text>
+          <Button colorScheme='blue' onClick={() => navigate('/clients')}>
+            Back to Clients
+          </Button>
+        </Box>
+      </Container>
+    );
+  }
 
   return (
     <Container maxW='container.xl' py={8}>

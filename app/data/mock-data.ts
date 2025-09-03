@@ -332,26 +332,17 @@ export const getDashboardData = () => {
     .slice(0, 6); // Show latest 6 activities
 
   // Generate monthly revenue trend (simulated based on proposal data)
-  const currentDate = new Date();
-  const monthlyRevenue = Array.from({ length: 8 }, (_, i) => {
-    const month = new Date(
-      currentDate.getFullYear(),
-      currentDate.getMonth() - (7 - i),
-      1
-    );
-    const monthName = month.toLocaleDateString('en-US', { month: 'short' });
-
-    // Simulate revenue growth with some variation
-    const baseRevenue = 45000;
-    const growthFactor = 1 + i * 0.05 + (Math.random() * 0.3 - 0.15); // Growth with variation
-    const revenue = Math.round(baseRevenue * growthFactor);
-
-    return {
-      month: monthName,
-      revenue,
-      proposals: Math.floor(revenue / 5000), // Rough estimate of proposals per month
-    };
-  });
+  // Using deterministic values to prevent hydration mismatches
+  const monthlyRevenue = [
+    { month: 'Jan', revenue: 45000, proposals: 9 },
+    { month: 'Feb', revenue: 52000, proposals: 10 },
+    { month: 'Mar', revenue: 48000, proposals: 10 },
+    { month: 'Apr', revenue: 61000, proposals: 12 },
+    { month: 'May', revenue: 55000, proposals: 11 },
+    { month: 'Jun', revenue: 68000, proposals: 14 },
+    { month: 'Jul', revenue: 72000, proposals: 14 },
+    { month: 'Aug', revenue: 78000, proposals: 16 },
+  ];
 
   // Calculate conversion rate (accepted proposals / total proposals)
   const conversionRate =
