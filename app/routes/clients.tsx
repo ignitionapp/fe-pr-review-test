@@ -11,7 +11,9 @@ import {
   Link,
 } from '@chakra-ui/react';
 import { Link as RouterLink } from 'react-router';
-import { mockClients, mockClientStats } from '../data/mock-data';
+import { useClients, useStats } from '../lib/hooks/useApi';
+import { LoadingSpinner } from '../components/ui/loading';
+import { ErrorDisplay } from '../components/ui/error';
 import type { Client } from '../types';
 
 export function meta(_args: Route.MetaArgs) {
@@ -53,9 +55,50 @@ const formatDate = (dateString: string) => {
 };
 
 export default function ClientsPage() {
-  // Load data on client side for SPA mode
-  const clients = mockClients;
-  const stats = mockClientStats;
+  // Use TanStack Query to fetch data
+  const {
+    data: clients,
+    isLoading: clientsLoading,
+    error: clientsError,
+    refetch: refetchClients,
+  } = useClients();
+  const {
+    data: statsData,
+    isLoading: statsLoading,
+    error: statsError,
+    refetch: refetchStats,
+  } = useStats();
+
+  const isLoading = clientsLoading || statsLoading;
+  const error = clientsError || statsError;
+  const stats = statsData?.clients;
+
+  if (isLoading) {
+    return (
+      <Container maxW='container.xl' py={8}>
+        <LoadingSpinner message='Loading clients...' />
+      </Container>
+    );
+  }
+
+  if (error) {
+    return (
+      <Container maxW='container.xl' py={8}>
+        <ErrorDisplay
+          title='Failed to load clients'
+          message='Unable to fetch client data. Please check your connection and try again.'
+          onRetry={() => {
+            refetchClients();
+            refetchStats();
+          }}
+        />
+      </Container>
+    );
+  }
+
+  if (!clients || !stats) {
+    return null;
+  }
 
   return (
     <Container maxW='container.xl' py={8}>
@@ -119,7 +162,7 @@ export default function ClientsPage() {
             </Table.Row>
           </Table.Header>
           <Table.Body>
-            {clients.map(client => (
+            {clients.map((client: Client) => (
               <Table.Row key={client.id}>
                 <Table.Cell>
                   <Box>

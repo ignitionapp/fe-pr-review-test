@@ -51,8 +51,8 @@ export default [
       '@typescript-eslint/explicit-function-return-type': 'off',
       '@typescript-eslint/explicit-module-boundary-types': 'off',
 
-      // Prettier integration
-      'prettier/prettier': 'error',
+      // Prettier integration - run separately
+      // 'prettier/prettier': 'warn',
 
       // Disable ESLint rules that conflict with Prettier
       ...prettierConfig.rules,

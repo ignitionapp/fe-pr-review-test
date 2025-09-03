@@ -26,21 +26,14 @@ import {
   Edit,
   AlertTriangle,
 } from 'lucide-react';
-import {
-  getProposalById,
-  getClientById,
-  mockServices,
-} from '../data/mock-data';
+import { useProposal, useClient, useServices } from '../lib/hooks/useApi';
+import { LoadingSpinner } from '../components/ui/loading';
+import { ErrorDisplay } from '../components/ui/error';
 import type { Proposal, Service } from '../types';
 
-export function meta({ params }: Route.MetaArgs) {
-  const proposal = getProposalById(params.proposalId!);
+export function meta({ params: _params }: Route.MetaArgs) {
   return [
-    {
-      title: proposal
-        ? `${proposal.title} - Proposal Details`
-        : 'Proposal Not Found',
-    },
+    { title: 'Proposal Details' },
     { name: 'description', content: 'View proposal details and manage status' },
   ];
 }
@@ -149,9 +142,74 @@ const getCategoryColor = (category: Service['category']) => {
 export default function ProposalDetailPage() {
   const navigate = useNavigate();
   const params = useParams();
+  const proposalId = params.proposalId!;
 
-  // Load data on client side for SPA mode
-  const proposal = getProposalById(params.proposalId!);
+  // Use TanStack Query to fetch data
+  const {
+    data: proposal,
+    isLoading: proposalLoading,
+    error: proposalError,
+    refetch: refetchProposal,
+  } = useProposal(proposalId);
+  const {
+    data: client,
+    isLoading: clientLoading,
+    error: clientError,
+    refetch: refetchClient,
+  } = useClient(proposal?.clientId || '');
+  const {
+    data: allServices,
+    isLoading: servicesLoading,
+    error: servicesError,
+    refetch: refetchServices,
+  } = useServices();
+
+  const isLoading = proposalLoading || clientLoading || servicesLoading;
+  const error = proposalError || clientError || servicesError;
+
+  if (isLoading) {
+    return (
+      <Container maxW='container.xl' py={8}>
+        <HStack gap={4} mb={8}>
+          <Button
+            variant='ghost'
+            size='sm'
+            onClick={() => navigate('/proposals')}
+          >
+            <ArrowLeft size={16} />
+            Back to Proposals
+          </Button>
+        </HStack>
+        <LoadingSpinner message='Loading proposal details...' />
+      </Container>
+    );
+  }
+
+  if (error) {
+    return (
+      <Container maxW='container.xl' py={8}>
+        <HStack gap={4} mb={8}>
+          <Button
+            variant='ghost'
+            size='sm'
+            onClick={() => navigate('/proposals')}
+          >
+            <ArrowLeft size={16} />
+            Back to Proposals
+          </Button>
+        </HStack>
+        <ErrorDisplay
+          title='Failed to load proposal details'
+          message='Unable to fetch proposal data. Please check your connection and try again.'
+          onRetry={() => {
+            refetchProposal();
+            refetchClient();
+            refetchServices();
+          }}
+        />
+      </Container>
+    );
+  }
 
   if (!proposal) {
     return (
@@ -181,9 +239,8 @@ export default function ProposalDetailPage() {
     );
   }
 
-  const client = getClientById(proposal.clientId);
   const services = proposal.services
-    .map(serviceId => mockServices.find(s => s.id === serviceId))
+    .map(serviceId => allServices?.find(s => s.id === serviceId))
     .filter(Boolean) as Service[];
 
   const validityStatus = getValidityStatus(

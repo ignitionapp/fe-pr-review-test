@@ -12,11 +12,9 @@ import {
   Link,
 } from '@chakra-ui/react';
 import { Link as RouterLink } from 'react-router';
-import {
-  mockProposals,
-  mockProposalStats,
-  getClientNameById,
-} from '../data/mock-data';
+import { useProposals, useStats, useClients } from '../lib/hooks/useApi';
+import { LoadingSpinner } from '../components/ui/loading';
+import { ErrorDisplay } from '../components/ui/error';
 import type { Proposal } from '../types';
 
 export function meta(_args: Route.MetaArgs) {
@@ -77,9 +75,63 @@ const getValidityStatus = (validUntil: string) => {
 };
 
 export default function ProposalsPage() {
-  // Load data on client side for SPA mode
-  const proposals = mockProposals;
-  const stats = mockProposalStats;
+  // Use TanStack Query to fetch data
+  const {
+    data: proposals,
+    isLoading: proposalsLoading,
+    error: proposalsError,
+    refetch: refetchProposals,
+  } = useProposals();
+  const {
+    data: statsData,
+    isLoading: statsLoading,
+    error: statsError,
+    refetch: refetchStats,
+  } = useStats();
+  const {
+    data: clients,
+    isLoading: clientsLoading,
+    error: clientsError,
+    refetch: refetchClients,
+  } = useClients();
+
+  const isLoading = proposalsLoading || statsLoading || clientsLoading;
+  const error = proposalsError || statsError || clientsError;
+  const stats = statsData?.proposals;
+
+  // Helper function to get client name by ID
+  const getClientNameById = (clientId: string): string => {
+    const client = clients?.find(c => c.id === clientId);
+    return client ? client.name : 'Unknown Client';
+  };
+
+  if (isLoading) {
+    return (
+      <Container maxW='container.xl' py={8}>
+        <LoadingSpinner message='Loading proposals...' />
+      </Container>
+    );
+  }
+
+  if (error) {
+    return (
+      <Container maxW='container.xl' py={8}>
+        <ErrorDisplay
+          title='Failed to load proposals'
+          message='Unable to fetch proposal data. Please check your connection and try again.'
+          onRetry={() => {
+            refetchProposals();
+            refetchStats();
+            refetchClients();
+          }}
+        />
+      </Container>
+    );
+  }
+
+  if (!proposals || !stats || !clients) {
+    return null;
+  }
 
   return (
     <Container maxW='container.xl' py={8}>
@@ -160,7 +212,7 @@ export default function ProposalsPage() {
             </Table.Row>
           </Table.Header>
           <Table.Body>
-            {proposals.map(proposal => (
+            {proposals.map((proposal: Proposal) => (
               <Table.Row key={proposal.id}>
                 <Table.Cell>
                   <VStack gap={1} align='start'>

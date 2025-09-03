@@ -14,13 +14,14 @@ import {
 } from '@chakra-ui/react';
 import { useNavigate, useParams } from 'react-router';
 import { ArrowLeft, Mail, Phone } from 'lucide-react';
-import { getClientById, getProposalsByClientId } from '../data/mock-data';
+import { useClient, useClientProposals } from '../lib/hooks/useApi';
+import { LoadingSpinner } from '../components/ui/loading';
+import { ErrorDisplay } from '../components/ui/error';
 import type { Client, Proposal } from '../types';
 
-export function meta({ params }: Route.MetaArgs) {
-  const client = getClientById(params.clientId!);
+export function meta({ params: _params }: Route.MetaArgs) {
   return [
-    { title: client ? `${client.name} - Client Details` : 'Client Not Found' },
+    { title: 'Client Details' },
     {
       name: 'description',
       content: 'View client details and manage proposals',
@@ -76,10 +77,67 @@ const formatDate = (dateString: string) => {
 export default function ClientDetailPage() {
   const navigate = useNavigate();
   const params = useParams();
+  const clientId = params.clientId!;
 
-  // Load data on client side for SPA mode
-  const client = getClientById(params.clientId!);
-  const proposals = client ? getProposalsByClientId(params.clientId!) : [];
+  // Use TanStack Query to fetch data
+  const {
+    data: client,
+    isLoading: clientLoading,
+    error: clientError,
+    refetch: refetchClient,
+  } = useClient(clientId);
+  const {
+    data: proposals,
+    isLoading: proposalsLoading,
+    error: proposalsError,
+    refetch: refetchProposals,
+  } = useClientProposals(clientId);
+
+  const isLoading = clientLoading || proposalsLoading;
+  const error = clientError || proposalsError;
+
+  if (isLoading) {
+    return (
+      <Container maxW='container.xl' py={8}>
+        <HStack gap={4} mb={8}>
+          <Button
+            variant='ghost'
+            size='sm'
+            onClick={() => navigate('/clients')}
+          >
+            <ArrowLeft size={16} />
+            Back to Clients
+          </Button>
+        </HStack>
+        <LoadingSpinner message='Loading client details...' />
+      </Container>
+    );
+  }
+
+  if (error) {
+    return (
+      <Container maxW='container.xl' py={8}>
+        <HStack gap={4} mb={8}>
+          <Button
+            variant='ghost'
+            size='sm'
+            onClick={() => navigate('/clients')}
+          >
+            <ArrowLeft size={16} />
+            Back to Clients
+          </Button>
+        </HStack>
+        <ErrorDisplay
+          title='Failed to load client details'
+          message='Unable to fetch client data. Please check your connection and try again.'
+          onRetry={() => {
+            refetchClient();
+            refetchProposals();
+          }}
+        />
+      </Container>
+    );
+  }
 
   if (!client) {
     return (
@@ -163,7 +221,7 @@ export default function ClientDetailPage() {
                 <Text fontSize='sm' color='fg.muted'>
                   Total Proposals
                 </Text>
-                <Text fontWeight='medium'>{proposals.length}</Text>
+                <Text fontWeight='medium'>{proposals?.length || 0}</Text>
               </HStack>
               <HStack justifyContent='space-between' w='full'>
                 <Text fontSize='sm' color='fg.muted'>
@@ -178,9 +236,9 @@ export default function ClientDetailPage() {
 
       <Box>
         <Heading size='md' mb={4}>
-          Proposals ({proposals.length})
+          Proposals ({proposals?.length || 0})
         </Heading>
-        {proposals.length > 0 ? (
+        {proposals && proposals.length > 0 ? (
           <Table.Root>
             <Table.Header>
               <Table.Row>
@@ -192,7 +250,7 @@ export default function ClientDetailPage() {
               </Table.Row>
             </Table.Header>
             <Table.Body>
-              {proposals.map((proposal: Proposal) => (
+              {proposals?.map((proposal: Proposal) => (
                 <Table.Row key={proposal.id}>
                   <Table.Cell>
                     <VStack gap={1}>

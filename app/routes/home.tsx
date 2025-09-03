@@ -8,7 +8,6 @@ import {
   HStack,
   Grid,
   GridItem,
-  Badge,
   Button,
   Link,
 } from '@chakra-ui/react';
@@ -21,12 +20,9 @@ import {
   DollarSign,
   ArrowUpRight,
   ArrowDownRight,
-  Clock,
   CheckCircle,
   Send,
-  UserPlus,
 } from 'lucide-react';
-import { getDashboardData } from '../data/mock-data';
 import { useStats } from '../lib/hooks/useApi';
 import { LoadingSpinner } from '../components/ui/loading';
 import { ErrorDisplay } from '../components/ui/error';
@@ -50,49 +46,9 @@ const formatCurrency = (amount: number) => {
   }).format(amount);
 };
 
-const formatDate = (dateString: string) => {
-  return new Date(dateString).toLocaleDateString('en-US', {
-    month: 'short',
-    day: 'numeric',
-    hour: '2-digit',
-    minute: '2-digit',
-  });
-};
-
-const getActivityIcon = (type: string) => {
-  switch (type) {
-    case 'proposal_accepted':
-      return <CheckCircle size={16} />;
-    case 'proposal_sent':
-      return <Send size={16} />;
-    case 'client_added':
-      return <UserPlus size={16} />;
-    case 'proposal_draft':
-      return <FileText size={16} />;
-    default:
-      return <Clock size={16} />;
-  }
-};
-
-const getActivityColor = (type: string) => {
-  switch (type) {
-    case 'proposal_accepted':
-      return 'green';
-    case 'proposal_sent':
-      return 'blue';
-    case 'client_added':
-      return 'purple';
-    case 'proposal_draft':
-      return 'orange';
-    default:
-      return 'gray';
-  }
-};
-
 export default function Dashboard() {
   // Use TanStack Query to fetch stats
   const { data: stats, isLoading, error, refetch } = useStats();
-  const dashboardData = getDashboardData();
 
   if (isLoading) {
     return (
@@ -208,7 +164,14 @@ export default function Dashboard() {
                   Conversion Rate
                 </Text>
                 <Text fontSize='3xl' fontWeight='bold'>
-                  {dashboardData.conversionRate}%
+                  {proposalStats.totalProposals > 0
+                    ? Math.round(
+                        (proposalStats.acceptedProposals /
+                          proposalStats.totalProposals) *
+                          100
+                      )
+                    : 0}
+                  %
                 </Text>
               </Box>
               <Box color='orange.500'>
@@ -216,7 +179,13 @@ export default function Dashboard() {
               </Box>
             </HStack>
             <HStack gap={2}>
-              {dashboardData.conversionRate >= 50 ? (
+              {(proposalStats.totalProposals > 0
+                ? Math.round(
+                    (proposalStats.acceptedProposals /
+                      proposalStats.totalProposals) *
+                      100
+                  )
+                : 0) >= 50 ? (
                 <>
                   <ArrowUpRight size={16} color='green' />
                   <Text fontSize='sm' color='green.500'>
@@ -234,141 +203,87 @@ export default function Dashboard() {
             </HStack>
           </Box>
         </Grid>
-        <Grid templateColumns='2fr 1fr' gap={8} w='full'>
-          <GridItem>
-            <Box p={6} borderWidth={1} borderRadius='lg' bg='bg.surface'>
-              <Heading size='md' mb={6}>
-                Revenue Trend (Last 8 Months)
-              </Heading>
-              <VStack align='stretch' gap={3}>
-                {dashboardData.monthlyRevenue.map((item, _index) => (
-                  <HStack key={item.month} justify='space-between'>
-                    <Text fontSize='sm'>{item.month}</Text>
-                    <HStack gap={2}>
-                      <Box
-                        height='4px'
-                        width={`${(item.revenue / 90000) * 200}px`}
-                        bg='blue.500'
-                        borderRadius='full'
-                      />
-                      <Text fontSize='sm' fontWeight='medium' minW='20'>
-                        {formatCurrency(item.revenue)}
-                      </Text>
-                    </HStack>
-                  </HStack>
-                ))}
-              </VStack>
-            </Box>
-          </GridItem>
-
-          <GridItem>
-            <Box p={6} borderWidth={1} borderRadius='lg' bg='bg.surface'>
-              <Heading size='md' mb={6}>
-                Client Status Distribution
-              </Heading>
-              <VStack align='stretch' gap={4}>
-                {dashboardData.clientStatusDistribution.map(item => (
-                  <Box key={item.status}>
-                    <HStack justify='space-between' mb={2}>
-                      <Text fontSize='sm'>{item.status}</Text>
-                      <Text fontSize='sm' fontWeight='medium'>
-                        {item.count} ({item.percentage}%)
-                      </Text>
-                    </HStack>
-                    <Box
-                      height='8px'
-                      width={`${item.percentage}%`}
-                      bg={
-                        item.status === 'Active'
-                          ? 'green.500'
-                          : item.status === 'Pending'
-                            ? 'yellow.500'
-                            : 'red.500'
-                      }
-                      borderRadius='full'
-                    />
-                  </Box>
-                ))}
-              </VStack>
-            </Box>
-          </GridItem>
-        </Grid>
         <Grid templateColumns='1fr 1fr' gap={8} w='full'>
           <GridItem>
             <Box p={6} borderWidth={1} borderRadius='lg' bg='bg.surface'>
               <Heading size='md' mb={6}>
-                Service Performance
+                Proposal Breakdown
               </Heading>
               <VStack align='stretch' gap={4}>
-                {dashboardData.serviceCategories.map(item => (
-                  <Box key={item.category}>
-                    <HStack justify='space-between' mb={2}>
-                      <Badge
-                        colorScheme={
-                          item.category === 'Implementation'
-                            ? 'green'
-                            : item.category === 'Consulting'
-                              ? 'blue'
-                              : item.category === 'Training'
-                                ? 'purple'
-                                : 'orange'
-                        }
-                        textTransform='capitalize'
-                      >
-                        {item.category}
-                      </Badge>
-                      <Text fontSize='sm' fontWeight='medium'>
-                        {formatCurrency(item.revenue)} ({item.count} projects)
-                      </Text>
-                    </HStack>
-                    <Box
-                      height='12px'
-                      width={`${(item.revenue / 600000) * 100}%`}
-                      bg='green.500'
-                      borderRadius='full'
-                      minW='20px'
+                <HStack justify='space-between'>
+                  <HStack gap={2}>
+                    <CheckCircle
+                      size={16}
+                      color='var(--chakra-colors-green-500)'
                     />
-                  </Box>
-                ))}
+                    <Text fontSize='sm'>Accepted</Text>
+                  </HStack>
+                  <Text fontSize='sm' fontWeight='medium'>
+                    {proposalStats.acceptedProposals}
+                  </Text>
+                </HStack>
+                <HStack justify='space-between'>
+                  <HStack gap={2}>
+                    <Send size={16} color='var(--chakra-colors-blue-500)' />
+                    <Text fontSize='sm'>Sent</Text>
+                  </HStack>
+                  <Text fontSize='sm' fontWeight='medium'>
+                    {proposalStats.sentProposals}
+                  </Text>
+                </HStack>
+                <HStack justify='space-between'>
+                  <HStack gap={2}>
+                    <FileText
+                      size={16}
+                      color='var(--chakra-colors-orange-500)'
+                    />
+                    <Text fontSize='sm'>Drafts</Text>
+                  </HStack>
+                  <Text fontSize='sm' fontWeight='medium'>
+                    {proposalStats.draftProposals}
+                  </Text>
+                </HStack>
               </VStack>
             </Box>
           </GridItem>
-
           <GridItem>
             <Box p={6} borderWidth={1} borderRadius='lg' bg='bg.surface'>
-              <HStack justify='space-between' align='center' mb={6}>
-                <Heading size='md'>Recent Activity</Heading>
-                <Button size='sm' variant='outline'>
-                  View All
-                </Button>
-              </HStack>
-              <VStack gap={4} align='stretch'>
-                {dashboardData.recentActivity.map(activity => (
-                  <HStack
-                    key={activity.id}
-                    gap={3}
-                    p={3}
-                    borderRadius='md'
-                    bg='bg.muted'
-                  >
-                    <Box color={`${getActivityColor(activity.type)}.500`}>
-                      {getActivityIcon(activity.type)}
-                    </Box>
-                    <Box flex={1}>
-                      <Text fontSize='sm' fontWeight='medium'>
-                        {activity.title}
-                      </Text>
-                      <Text fontSize='xs' color='fg.muted'>
-                        {activity.client} • {formatDate(activity.timestamp)}
-                      </Text>
-                    </Box>
-                    {activity.value && (
-                      <Text fontSize='sm' fontWeight='medium' color='green.500'>
-                        {formatCurrency(activity.value)}
-                      </Text>
-                    )}
-                  </HStack>
-                ))}
+              <Heading size='md' mb={6}>
+                Financial Summary
+              </Heading>
+              <VStack align='stretch' gap={4}>
+                <HStack justify='space-between'>
+                  <Text fontSize='sm' color='fg.muted'>
+                    Total Clients
+                  </Text>
+                  <Text fontSize='sm' fontWeight='medium'>
+                    {clientStats.totalClients}
+                  </Text>
+                </HStack>
+                <HStack justify='space-between'>
+                  <Text fontSize='sm' color='fg.muted'>
+                    Pending Proposals
+                  </Text>
+                  <Text fontSize='sm' fontWeight='medium'>
+                    {clientStats.pendingProposals}
+                  </Text>
+                </HStack>
+                <HStack justify='space-between'>
+                  <Text fontSize='sm' color='fg.muted'>
+                    Total Value
+                  </Text>
+                  <Text fontSize='sm' fontWeight='medium'>
+                    {formatCurrency(proposalStats.totalValue)}
+                  </Text>
+                </HStack>
+                <HStack justify='space-between'>
+                  <Text fontSize='sm' color='fg.muted'>
+                    Accepted Value
+                  </Text>
+                  <Text fontSize='sm' fontWeight='medium' color='green.500'>
+                    {formatCurrency(proposalStats.acceptedValue)}
+                  </Text>
+                </HStack>
               </VStack>
             </Box>
           </GridItem>
