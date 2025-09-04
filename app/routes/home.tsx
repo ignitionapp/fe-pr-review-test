@@ -11,7 +11,6 @@ import {
   Button,
   Link,
 } from '@chakra-ui/react';
-// Charts functionality will be added later
 import { Link as RouterLink } from 'react-router';
 import {
   TrendingUp,
@@ -47,7 +46,6 @@ const formatCurrency = (amount: number) => {
 };
 
 export default function Dashboard() {
-  // Use TanStack Query to fetch stats
   const { data: stats, isLoading, error, refetch } = useStats();
 
   if (isLoading) {

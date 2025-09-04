@@ -197,30 +197,24 @@ export const mockProposalStats = {
     .reduce((sum, p) => sum + p.totalAmount, 0),
 };
 
-// Helper function to get client by ID
 export const getClientById = (id: string): Client | undefined => {
   return mockClients.find(client => client.id === id);
 };
 
-// Helper function to get proposals for a client
 export const getProposalsByClientId = (clientId: string): Proposal[] => {
   return mockProposals.filter(proposal => proposal.clientId === clientId);
 };
 
-// Helper function to get proposal by ID
 export const getProposalById = (id: string): Proposal | undefined => {
   return mockProposals.find(proposal => proposal.id === id);
 };
 
-// Helper function to get client name for a proposal
 export const getClientNameById = (clientId: string): string => {
   const client = getClientById(clientId);
   return client ? client.name : 'Unknown Client';
 };
 
-// Dashboard analytics derived from actual data
 export const getDashboardData = () => {
-  // Calculate client status distribution
   const clientStatusCounts = mockClients.reduce(
     (acc, client) => {
       acc[client.status] = (acc[client.status] || 0) + 1;
@@ -238,7 +232,6 @@ export const getDashboardData = () => {
     })
   );
 
-  // Calculate proposal status distribution
   const proposalStatusCounts = mockProposals.reduce(
     (acc, proposal) => {
       if (!acc[proposal.status]) {
@@ -259,7 +252,6 @@ export const getDashboardData = () => {
     })
   );
 
-  // Calculate service performance from proposals
   const servicePerformance = mockProposals.reduce(
     (acc, proposal) => {
       proposal.services.forEach(serviceId => {
@@ -270,7 +262,6 @@ export const getDashboardData = () => {
             acc[category] = { count: 0, revenue: 0 };
           }
           acc[category].count += 1;
-          // Distribute proposal amount across services
           acc[category].revenue +=
             proposal.totalAmount / proposal.services.length;
         }
@@ -288,9 +279,7 @@ export const getDashboardData = () => {
     })
   );
 
-  // Generate recent activity from proposals and clients (sorted by date)
   const recentActivity = [
-    // Proposal activities
     ...mockProposals.map(proposal => {
       const client = getClientById(proposal.clientId);
       const activityType =
@@ -315,7 +304,6 @@ export const getDashboardData = () => {
         timestamp: proposal.updatedAt,
       };
     }),
-    // Client activities (using recent clients)
     ...mockClients.slice(-2).map(client => ({
       id: `client-${client.id}`,
       type: 'client_added',
@@ -324,15 +312,10 @@ export const getDashboardData = () => {
       value: null,
       timestamp: client.createdAt,
     })),
-  ]
-    .sort(
-      (a, b) =>
-        new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime()
-    )
-    .slice(0, 6); // Show latest 6 activities
+  ].sort(
+    (a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime()
+  );
 
-  // Generate monthly revenue trend (simulated based on proposal data)
-  // Using deterministic values to prevent hydration mismatches
   const monthlyRevenue = [
     { month: 'Jan', revenue: 45000, proposals: 9 },
     { month: 'Feb', revenue: 52000, proposals: 10 },
@@ -344,7 +327,6 @@ export const getDashboardData = () => {
     { month: 'Aug', revenue: 78000, proposals: 16 },
   ];
 
-  // Calculate conversion rate (accepted proposals / total proposals)
   const conversionRate =
     mockProposals.length > 0
       ? Math.round(

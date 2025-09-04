@@ -75,7 +75,6 @@ const getValidityStatus = (validUntil: string) => {
 };
 
 export default function ProposalsPage() {
-  // Use TanStack Query to fetch data
   const {
     data: proposals,
     isLoading: proposalsLoading,
@@ -99,7 +98,6 @@ export default function ProposalsPage() {
   const error = proposalsError || statsError || clientsError;
   const stats = statsData?.proposals;
 
-  // Helper function to get client name by ID
   const getClientNameById = (clientId: string): string => {
     const client = clients?.find(c => c.id === clientId);
     return client ? client.name : 'Unknown Client';

@@ -9,7 +9,6 @@ import type {
   ProposalStats,
 } from '../../types';
 
-// Query keys for consistent caching
 export const queryKeys = {
   stats: ['stats'],
   clients: ['clients'],
@@ -21,7 +20,6 @@ export const queryKeys = {
   service: (id: string) => ['services', id],
 } as const;
 
-// Stats hooks
 export const useStats = (): UseQueryResult<
   { clients: ClientStats; proposals: ProposalStats },
   Error
@@ -31,7 +29,6 @@ export const useStats = (): UseQueryResult<
     queryFn: api.fetchStats,
   });
 
-// Client hooks
 export const useClients = (): UseQueryResult<Client[], Error> =>
   useQuery({
     queryKey: queryKeys.clients,
@@ -54,7 +51,6 @@ export const useClientProposals = (
     enabled: !!clientId,
   });
 
-// Proposal hooks
 export const useProposals = (): UseQueryResult<Proposal[], Error> =>
   useQuery({
     queryKey: queryKeys.proposals,
@@ -68,7 +64,6 @@ export const useProposal = (id: string): UseQueryResult<Proposal, Error> =>
     enabled: !!id,
   });
 
-// Service hooks
 export const useServices = (): UseQueryResult<Service[], Error> =>
   useQuery({
     queryKey: queryKeys.services,

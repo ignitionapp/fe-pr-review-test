@@ -1,4 +1,3 @@
-// Initialize MSW for development
 export async function initMSW() {
   if (typeof window !== 'undefined' && import.meta.env.DEV) {
     const { worker } = await import('./browser');

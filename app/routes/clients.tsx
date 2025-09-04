@@ -55,7 +55,6 @@ const formatDate = (dateString: string) => {
 };
 
 export default function ClientsPage() {
-  // Use TanStack Query to fetch data
   const {
     data: clients,
     isLoading: clientsLoading,

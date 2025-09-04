@@ -79,7 +79,6 @@ export default function ClientDetailPage() {
   const params = useParams();
   const clientId = params.clientId!;
 
-  // Use TanStack Query to fetch data
   const {
     data: client,
     isLoading: clientLoading,

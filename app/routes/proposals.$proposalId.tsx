@@ -144,7 +144,6 @@ export default function ProposalDetailPage() {
   const params = useParams();
   const proposalId = params.proposalId!;
 
-  // Use TanStack Query to fetch data
   const {
     data: proposal,
     isLoading: proposalLoading,

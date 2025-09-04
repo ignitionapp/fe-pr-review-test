@@ -15,12 +15,11 @@ import { PageLayout } from './components/page-layout';
 import { system } from './lib/theme';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 
-// Create a client
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
       staleTime: 1000 * 60 * 5, // 5 minutes
-      gcTime: 1000 * 60 * 10, // 10 minutes (formerly cacheTime)
+      gcTime: 1000 * 60 * 10, // 10 minutes
       retry: 1,
     },
   },

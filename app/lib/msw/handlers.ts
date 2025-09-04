@@ -79,12 +79,4 @@ export const handlers = [
     }
     return HttpResponse.json(service);
   }),
-
-  // Health check
-  http.get('http://localhost:3001/health', () => {
-    return HttpResponse.json({
-      status: 'OK',
-      timestamp: new Date().toISOString(),
-    });
-  }),
 ];

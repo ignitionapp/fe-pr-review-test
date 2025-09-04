@@ -1,5 +1,3 @@
-// Core domain types for fintech application
-
 export interface Client {
   id: string;
   name: string;
@@ -30,7 +28,7 @@ export interface Proposal {
   createdAt: string;
   updatedAt: string;
   validUntil: string;
-  services: string[]; // Service IDs
+  services: string[];
 }
 
 export interface Service {
@@ -40,7 +38,7 @@ export interface Service {
   category: 'consulting' | 'implementation' | 'maintenance' | 'training';
   basePrice: number;
   currency: string;
-  duration: string; // e.g., "3 months", "1 year"
+  duration: string;
   isActive: boolean;
 }
 
