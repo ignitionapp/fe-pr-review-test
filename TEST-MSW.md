@@ -3,6 +3,7 @@
 To verify MSW is working correctly:
 
 1. **Start the dev server:**
+
    ```bash
    npm run dev
    ```
@@ -34,6 +35,7 @@ To verify MSW is working correctly:
 ## Console Messages
 
 Look for these messages in the browser console:
+
 - `🔧 MSW: Mock Service Worker started`
 - Network requests in the Network tab
 - TanStack Query cache updates

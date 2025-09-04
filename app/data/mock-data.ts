@@ -188,25 +188,26 @@ export const mockClientStats: ClientStats = {
 
 export const mockProposalStats = {
   totalProposals: mockProposals.length,
-  acceptedProposals: mockProposals.filter(p => p.status === 'accepted').length,
-  draftProposals: mockProposals.filter(p => p.status === 'draft').length,
-  sentProposals: mockProposals.filter(p => p.status === 'sent').length,
+  acceptedProposals: mockProposals.filter((p) => p.status === 'accepted')
+    .length,
+  draftProposals: mockProposals.filter((p) => p.status === 'draft').length,
+  sentProposals: mockProposals.filter((p) => p.status === 'sent').length,
   totalValue: mockProposals.reduce((sum, p) => sum + p.totalAmount, 0),
   acceptedValue: mockProposals
-    .filter(p => p.status === 'accepted')
+    .filter((p) => p.status === 'accepted')
     .reduce((sum, p) => sum + p.totalAmount, 0),
 };
 
 export const getClientById = (id: string): Client | undefined => {
-  return mockClients.find(client => client.id === id);
+  return mockClients.find((client) => client.id === id);
 };
 
 export const getProposalsByClientId = (clientId: string): Proposal[] => {
-  return mockProposals.filter(proposal => proposal.clientId === clientId);
+  return mockProposals.filter((proposal) => proposal.clientId === clientId);
 };
 
 export const getProposalById = (id: string): Proposal | undefined => {
-  return mockProposals.find(proposal => proposal.id === id);
+  return mockProposals.find((proposal) => proposal.id === id);
 };
 
 export const getClientNameById = (clientId: string): string => {
@@ -254,8 +255,8 @@ export const getDashboardData = () => {
 
   const servicePerformance = mockProposals.reduce(
     (acc, proposal) => {
-      proposal.services.forEach(serviceId => {
-        const service = mockServices.find(s => s.id === serviceId);
+      proposal.services.forEach((serviceId) => {
+        const service = mockServices.find((s) => s.id === serviceId);
         if (service) {
           const category = service.category;
           if (!acc[category]) {
@@ -280,7 +281,7 @@ export const getDashboardData = () => {
   );
 
   const recentActivity = [
-    ...mockProposals.map(proposal => {
+    ...mockProposals.map((proposal) => {
       const client = getClientById(proposal.clientId);
       const activityType =
         proposal.status === 'accepted'
@@ -304,7 +305,7 @@ export const getDashboardData = () => {
         timestamp: proposal.updatedAt,
       };
     }),
-    ...mockClients.slice(-2).map(client => ({
+    ...mockClients.slice(-2).map((client) => ({
       id: `client-${client.id}`,
       type: 'client_added',
       title: 'New client onboarded',
@@ -330,7 +331,7 @@ export const getDashboardData = () => {
   const conversionRate =
     mockProposals.length > 0
       ? Math.round(
-          (mockProposals.filter(p => p.status === 'accepted').length /
+          (mockProposals.filter((p) => p.status === 'accepted').length /
             mockProposals.length) *
             100
         )

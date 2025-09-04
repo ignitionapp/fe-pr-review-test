@@ -239,7 +239,7 @@ export default function ProposalDetailPage() {
   }
 
   const services = proposal.services
-    .map(serviceId => allServices?.find(s => s.id === serviceId))
+    .map((serviceId) => allServices?.find((s) => s.id === serviceId))
     .filter(Boolean) as Service[];
 
   const validityStatus = getValidityStatus(
@@ -404,7 +404,7 @@ export default function ProposalDetailPage() {
                     </Table.Row>
                   </Table.Header>
                   <Table.Body>
-                    {services.map(service => (
+                    {services.map((service) => (
                       <Table.Row key={service.id}>
                         <Table.Cell>
                           <VStack gap={1} align='start'>

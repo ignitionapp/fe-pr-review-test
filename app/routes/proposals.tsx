@@ -99,7 +99,7 @@ export default function ProposalsPage() {
   const stats = statsData?.proposals;
 
   const getClientNameById = (clientId: string): string => {
-    const client = clients?.find(c => c.id === clientId);
+    const client = clients?.find((c) => c.id === clientId);
     return client ? client.name : 'Unknown Client';
   };
 

@@ -48,7 +48,7 @@ export function PageLayout({ children }: PageLayoutProps) {
         <Container maxW='container.xl' py={4}>
           <Flex align='center' gap={8}>
             <HStack gap={6}>
-              {navigationItems.map(item => (
+              {navigationItems.map((item) => (
                 <Link
                   key={item.path}
                   asChild
