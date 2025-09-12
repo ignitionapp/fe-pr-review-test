@@ -15,6 +15,9 @@ import { useClients, useStats } from '../lib/hooks/useApi';
 import { LoadingSpinner } from '../components/ui/loading';
 import { ErrorDisplay } from '../components/ui/error';
 import type { Client } from '../types';
+import { ClientFilter } from '../components/ClientFilter';
+import { createDefaultFilter } from '../types/client';
+import { useState, useEffect } from 'react';
 
 export function meta(_args: Route.MetaArgs) {
   return [
@@ -55,12 +58,19 @@ const formatDate = (dateString: string) => {
 };
 
 export default function ClientsPage() {
+  const [filters, setFilters] = useState(createDefaultFilter());
+  const [betaMode, setBetaMode] = useState(false);
+
+  useEffect(() => {
+    setBetaMode(window.BETA_MODE);
+  }, [window]);
+
   const {
     data: clients,
     isLoading: clientsLoading,
     error: clientsError,
     refetch: refetchClients,
-  } = useClients();
+  } = useClients(filters);
   const {
     data: statsData,
     isLoading: statsLoading,
@@ -143,11 +153,14 @@ export default function ClientsPage() {
           </Box>
         </HStack>
       </Box>
+      {betaMode && <Heading size='lg'>Beta Filters</Heading>}
+      <ClientFilter setFilters={setFilters} clients={clients || []} />
       <Box
         bg='bg.surface'
         borderRadius='lg'
         borderWidth='1px'
         overflow='hidden'
+        mt={4}
       >
         <Table.Root>
           <Table.Header>
@@ -161,7 +174,7 @@ export default function ClientsPage() {
             </Table.Row>
           </Table.Header>
           <Table.Body>
-            {clients.map((client: Client) => (
+            {clients?.map((client: Client) => (
               <Table.Row key={client.id}>
                 <Table.Cell>
                   <Box>

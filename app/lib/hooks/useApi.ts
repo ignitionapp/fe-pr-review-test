@@ -8,6 +8,7 @@ import type {
   ClientStats,
   ProposalStats,
 } from '../../types';
+import type { ClientFilter } from '../../types/client';
 
 export const queryKeys = {
   stats: ['stats'],
@@ -29,10 +30,30 @@ export const useStats = (): UseQueryResult<
     queryFn: api.fetchStats,
   });
 
-export const useClients = (): UseQueryResult<Client[], Error> =>
+export const useClients = (
+  filter?: ClientFilter
+): UseQueryResult<Client[], Error> =>
   useQuery({
     queryKey: queryKeys.clients,
-    queryFn: api.fetchClients,
+    queryFn: async () => {
+      const response = await fetch('/api/clients', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          searchTerm: filter?.searchTerm,
+          status: filter?.status,
+          minTotalValue: filter?.minTotalValue,
+        }),
+      });
+
+      const data = await response.json();
+
+      localStorage.setItem('lastClientFilter', JSON.stringify(filter));
+
+      return data;
+    },
   });
 
 export const useClient = (id: string): UseQueryResult<Client, Error> =>
